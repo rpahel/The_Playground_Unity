@@ -1,12 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Gow_Trap_Blocks : MonoBehaviour
 {
+    [Header("Block")]
     [SerializeField] private GameObject block_prefab;
     private float block_width;
-    private Transform[] blocks;
+    private Gow_Trap_Block[] blocks;
+
+    [Header("Blocks move")]
+    [SerializeField] private float move_duration;
+    [SerializeField] private AnimationCurve move_ease;
+
+    public void Start()
+    {
+        CreateTrapBlocks(5);
+    }
 
     /// <summary>
     /// Creates the given number of blocks for the trap.
@@ -17,13 +25,14 @@ public class Gow_Trap_Blocks : MonoBehaviour
         DestroyTrapBlocks();
 
         if (n == 0){ Debug.Log("You can't create a blocks trap with 0 blocks."); return; }
-        blocks = new Transform[n];
+        blocks = new Gow_Trap_Block[n];
 
         block_width = block_prefab.transform.GetChild(0).localScale.x;
 
         for(int i = 0; i < n; i++)
         {
-            blocks[i] = Instantiate(block_prefab, new Vector3(block_width * (i - 0.5f * (n-1)), 0, 0), Quaternion.identity, transform).transform;
+            blocks[i] = Instantiate(block_prefab, new Vector3(block_width * (i - 0.5f * (n-1)), 0, 0), Quaternion.identity, transform).GetComponent<Gow_Trap_Block>();
+            blocks[i].gameObject.name = "Block " + i.ToString("00");
         }
     }
 
