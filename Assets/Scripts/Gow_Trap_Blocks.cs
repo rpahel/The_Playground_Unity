@@ -4,9 +4,10 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Gow_Trap_Blocks : MonoBehaviour
 {
-    [Header("Blocks move")]
-    [SerializeField] private float move_duration;
-    [SerializeField] private AnimationCurve move_ease;
+    [Header("Block")]
+    [SerializeField] private GameObject block_prefab;
+    private float block_width;
+    private Gow_Trap_Block[] blocks;
 
     [Space(10)]
     [Header("General block properties")]
@@ -16,14 +17,14 @@ public class Gow_Trap_Blocks : MonoBehaviour
     public float time_between_moves;
 
     [Space(10)]
-    [Header("Block")]
-    [SerializeField] private GameObject block_prefab;
-    private float block_width;
-    private Gow_Trap_Block[] blocks;
+    [Header("Blocks move")]
+    [SerializeField] private float move_duration;
+    [SerializeField] private AnimationCurve move_ease;
 
     [Space(10)]
     [Header("Block Properties")]
     public BlockSettings[] block_settings;
+    private int block_count;
 
     private void Awake()
     {
@@ -37,7 +38,30 @@ public class Gow_Trap_Blocks : MonoBehaviour
     {
         if (!Application.isPlaying)
         {
-            CreateTrapBlocks(block_settings.Length);
+            if (block_settings == null)
+            {
+                DestroyTrapBlocks();
+                return;
+            }
+
+            if(block_settings.Length != block_count)
+            {
+                CreateTrapBlocks(block_settings.Length);
+                block_count = block_settings.Length;
+            }
+
+            if (blocks == null)
+                return;
+
+            int i = 0;
+            foreach(Gow_Trap_Block block in blocks)
+            {
+                block.start_position = block_settings[i].start_position;
+                block.end_position = block_settings[i].end_position;
+                block.time_to_start = block_settings[i].time_to_start;
+                block.time_between_moves = block_settings[i].time_between_moves;
+                i++;
+            }
         }
     }
 
@@ -56,7 +80,7 @@ public class Gow_Trap_Blocks : MonoBehaviour
 
         for(int i = 0; i < n; i++)
         {
-            blocks[i] = Instantiate(block_prefab, Vector3.zero, Quaternion.identity, transform).GetComponent<Gow_Trap_Block>();
+            blocks[i] = Instantiate(block_prefab, Vector3.zero, transform.rotation, transform).GetComponent<Gow_Trap_Block>();
             blocks[i].transform.localPosition = new Vector3(block_width * (i - 0.5f * (n - 1)), 0, 0);
             blocks[i].InitialLocalPosition = blocks[i].transform.localPosition;
             blocks[i].gameObject.name = "Block " + i.ToString("00");

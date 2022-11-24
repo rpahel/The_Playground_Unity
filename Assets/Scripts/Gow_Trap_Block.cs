@@ -10,6 +10,8 @@ public class Gow_Trap_Block : MonoBehaviour
     public float time_between_moves;
 
     //================================================================================
+    private Transform block;
+    public Vector3 block_initial_worldposition;
     private Vector3 initial_localposition;
     public Vector3 InitialLocalPosition { set { initial_localposition = value; } }
     private float move_duration;
@@ -23,6 +25,11 @@ public class Gow_Trap_Block : MonoBehaviour
     //================================================================================
     private Vector3 start_localposition_v3;
     private Vector3 end_localposition_v3;
+
+    private void Awake()
+    {
+        block = transform.GetChild(0);
+    }
 
     private void Start()
     {
@@ -106,28 +113,20 @@ public class Gow_Trap_Block : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    private void Update()
-    {
-        if (!Application.isPlaying)
-        {
-            transform.localPosition = initial_localposition + start_position * Vector3.forward;
-            return;
-        }
-    }
-
     private void OnDrawGizmos()
     {
-        half_block_height = transform.localScale.y * .5f;
+        block_initial_worldposition = transform.parent.position + transform.localPosition.x * transform.right + block.localPosition.y * transform.up;
+        half_block_height = transform.lossyScale.x * .5f;
 
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine((transform.parent.position + initial_localposition) + half_block_height * Vector3.up,
-                        (transform.parent.position + initial_localposition) + half_block_height * Vector3.up + start_position * Vector3.forward);
-        Gizmos.DrawWireCube((transform.parent.position + initial_localposition) + half_block_height * Vector3.up + start_position * Vector3.forward, transform.localScale);
+        Gizmos.DrawRay(block_initial_worldposition, start_position * block.forward);
+        Gizmos.DrawWireSphere(block_initial_worldposition + start_position * block.forward, half_block_height);
+        Gizmos.DrawSphere(block_initial_worldposition + start_position * block.forward, half_block_height * .25f);
 
         Gizmos.color = Color.magenta;
-        Gizmos.DrawLine((transform.parent.position + initial_localposition) + half_block_height * Vector3.up,
-                        (transform.parent.position + initial_localposition) + half_block_height * Vector3.up - end_position * Vector3.forward);
-        Gizmos.DrawWireCube((transform.parent.position + initial_localposition) + half_block_height * Vector3.up - end_position * Vector3.forward, transform.localScale);
+        Gizmos.DrawRay(block_initial_worldposition, -end_position * block.forward);
+        Gizmos.DrawWireSphere(block_initial_worldposition - end_position * block.forward, half_block_height);
+        Gizmos.DrawSphere(block_initial_worldposition - end_position * block.forward, half_block_height * .25f);
     }
 #endif
 }
